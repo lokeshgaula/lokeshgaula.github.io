@@ -69,10 +69,6 @@
                             <div class="label">Field</div>
                         </div>
                         <div class="stat">
-                            <div class="num">Lucky</div>
-                            <div class="label">Nickname</div>
-                        </div>
-                        <div class="stat">
                             <div class="num">2026+</div>
                             <div class="label">Available</div>
                         </div>
@@ -155,31 +151,24 @@
             </div>
         </section>
 
-        <!-- ASSIGNMENTS: temporary upload area -->
+        <!-- ASSIGNMENTS: display Drive-hosted assignments as project cards -->
         <section id="assignments" class="section assignments" data-aos="fade-up">
             <h3>Assignments</h3>
-            <div class="assignments-grid">
-                <div class="glass upload-panel" data-aos="fade-right">
-                    <h4>Upload Assignment</h4>
-                    <p class="muted">Upload files here for temporary storage (saved in your browser). Remove when not needed.</p>
-                    <div id="upload-area" class="upload-area">
-                        <input id="assignment-input" type="file" multiple hidden>
-                        <button class="btn ghost" id="choose-files">Choose files</button>
-                        <div class="drop-hint">or drag & drop files here</div>
+            <div class="projects-grid">
+                <article class="project-card glass" data-aos="flip-left" data-preview-type="image" data-preview-src="" data-preview-title="Assignment 1 - Report">
+                    <div class="preview-thumb" aria-hidden="true">
+                        <div class="preview-placeholder">Assignment Preview</div>
                     </div>
-                    <div class="upload-actions" style="margin-top:12px">
-                        <label style="display:inline-flex;align-items:center;gap:8px;color:var(--muted)"><input type="checkbox" id="make-public"> Make public (upload)</label>
-                        <button class="btn primary" id="save-files">Save Selected</button>
-                        <button class="btn" id="clear-assignments">Clear All</button>
+                    <div class="card-head">
+                        <h4>Assignment 1 — Career Skills</h4>
+                        <span class="tag">Description</span>
                     </div>
-                </div>
-
-                <div class="glass assignments-list" data-aos="fade-left">
-                    <h4>Saved Assignments</h4>
-                    <ul id="assignments-list" class="file-list"></ul>
-                    <h4 style="margin-top:18px">Public Assignments</h4>
-                    <ul id="public-assignments" class="file-list"></ul>
-                </div>
+                    <p class="card-desc">Career skill's assignment. Click Open to view the full document on Google Drive.</p>
+                    <div class="card-actions">
+                        <a href="https://drive.google.com/file/d/1yp7TGRn6NJU_BUrT67ks_sYWb2T_6Y7Z/view?usp=drivesdk" class="link" target="_blank" rel="noopener">Open Assignment</a>
+                        <a href="#" class="link" data-action="open-preview">Preview</a>
+                    </div>
+                </article>
             </div>
         </section>
 
