@@ -168,6 +168,7 @@
                         <div class="drop-hint">or drag & drop files here</div>
                     </div>
                     <div class="upload-actions" style="margin-top:12px">
+                        <label style="display:inline-flex;align-items:center;gap:8px;color:var(--muted)"><input type="checkbox" id="make-public"> Make public (upload)</label>
                         <button class="btn primary" id="save-files">Save Selected</button>
                         <button class="btn" id="clear-assignments">Clear All</button>
                     </div>
@@ -176,6 +177,8 @@
                 <div class="glass assignments-list" data-aos="fade-left">
                     <h4>Saved Assignments</h4>
                     <ul id="assignments-list" class="file-list"></ul>
+                    <h4 style="margin-top:18px">Public Assignments</h4>
+                    <ul id="public-assignments" class="file-list"></ul>
                 </div>
             </div>
         </section>
