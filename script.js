@@ -297,6 +297,17 @@ function initKineticCursor(){
 const ASSIGN_DB = 'portfolio-db';
 const ASSIGN_STORE = 'assignments';
 
+/* Cloudinary / public manifest settings
+	Replace the placeholders below with your Cloudinary cloud name and unsigned upload preset.
+	To make uploaded assignments visible to all visitors, set up a small public endpoint
+	(for example a Google Apps Script web app or other webhook) that accepts POST requests
+	to append metadata to a publicly readable manifest. Set its URL to PUBLIC_MANIFEST_ENDPOINT.
+	If you don't want immediate public exposure, leave PUBLIC_MANIFEST_ENDPOINT as null.
+*/
+const CLOUDINARY_CLOUD_NAME = 'YOUR_CLOUD_NAME'; // e.g. 'lokeshcloud'
+const CLOUDINARY_UPLOAD_PRESET = 'YOUR_UNSIGNED_UPLOAD_PRESET';
+const PUBLIC_MANIFEST_ENDPOINT = null; // e.g. 'https://script.google.com/macros/s/XXX/exec'
+
 function openDB() {
 	return new Promise((resolve, reject) => {
 		const req = indexedDB.open(ASSIGN_DB, 1);
@@ -325,6 +336,46 @@ async function saveFiles(files) {
 		});
 	}
 	await new Promise(r => tx.oncomplete = r);
+}
+
+// Upload a single file to Cloudinary (unsigned). Returns secure_url on success.
+async function uploadToCloudinary(file) {
+	if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_UPLOAD_PRESET) throw new Error('Cloudinary not configured');
+	const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`;
+	const fd = new FormData();
+	fd.append('file', file);
+	fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+	fd.append('context', `uploader:${encodeURIComponent('Lokesh Gaula')}`);
+	const res = await fetch(url, { method: 'POST', body: fd });
+	if (!res.ok) throw new Error('Upload failed');
+	const data = await res.json();
+	return data.secure_url || data.url;
+}
+
+async function postManifestEntry(entry) {
+	if (!PUBLIC_MANIFEST_ENDPOINT) return null;
+	try {
+		const res = await fetch(PUBLIC_MANIFEST_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(entry) });
+		if (!res.ok) throw new Error('Manifest post failed');
+		return await res.json();
+	} catch (err) {
+		console.warn('Failed to post manifest', err);
+		return null;
+	}
+}
+
+async function fetchPublicAssignments() {
+	if (!PUBLIC_MANIFEST_ENDPOINT) return [];
+	try {
+		const res = await fetch(PUBLIC_MANIFEST_ENDPOINT, { cache: 'no-store' });
+		if (!res.ok) return [];
+		const data = await res.json();
+		// Expecting an array of {uploader, name, url, ts}
+		return Array.isArray(data) ? data : [];
+	} catch (err) {
+		console.warn('Failed to fetch public manifest', err);
+		return [];
+	}
 }
 
 async function loadAssignments() {
@@ -419,12 +470,58 @@ function initAssignments(){
 	saveBtn.addEventListener('click', async () => {
 		const files = Array.from(input.files || []);
 		if (!files.length) { showToast('No files selected'); return; }
-		try { await saveFiles(files); showToast('Saved'); input.value = ''; await refreshAssignments(); } catch (err) { console.error(err); showToast('Save failed'); }
+		const makePublic = document.getElementById('make-public')?.checked;
+		try {
+			// Save locally (IndexedDB)
+			await saveFiles(files);
+			// If user requested public upload, upload to Cloudinary and optionally post metadata to manifest endpoint
+			if (makePublic) {
+				if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_UPLOAD_PRESET) { showToast('Cloudinary not configured'); }
+				else {
+					const publicEntries = [];
+					for (const f of files) {
+						try {
+							const secureUrl = await uploadToCloudinary(f);
+							publicEntries.push({ uploader: 'Lokesh Gaula', name: f.name, url: secureUrl, ts: Date.now() });
+						} catch (err) { console.error('Upload failed', err); showToast('Upload failed for ' + f.name); }
+					}
+					if (publicEntries.length && PUBLIC_MANIFEST_ENDPOINT) {
+						await postManifestEntry({ entries: publicEntries });
+					}
+					if (publicEntries.length) showToast('Uploaded publicly');
+				}
+			}
+			input.value = '';
+			await refreshAssignments();
+			// Refresh public listing if endpoint exists
+			if (PUBLIC_MANIFEST_ENDPOINT) renderPublicAssignments(await fetchPublicAssignments());
+		} catch (err) { console.error(err); showToast('Save failed'); }
 	});
 
 	clearBtn.addEventListener('click', async () => { if (confirm('Clear all saved assignments?')) { await clearAssignments(); await refreshAssignments(); showToast('Cleared'); } });
 
 	refreshAssignments();
+}
+
+function renderPublicAssignments(items) {
+	const ul = document.getElementById('public-assignments');
+	if (!ul) return;
+	ul.innerHTML = '';
+	if (!items || !items.length) { ul.innerHTML = '<li class="muted">No public assignments yet.</li>'; return; }
+	for (const it of items) {
+		const li = document.createElement('li'); li.className = 'file-item';
+		const meta = document.createElement('div'); meta.className = 'meta';
+		meta.innerHTML = `<div><strong>${escapeHtml(it.name || it.title || '(no name)')}</strong></div><div class="muted">Uploaded by ${escapeHtml(it.uploader||'unknown')} • ${new Date(it.ts||Date.now()).toLocaleString()}</div>`;
+		const actions = document.createElement('div'); actions.className = 'actions';
+		const open = document.createElement('a'); open.className = 'btn ghost'; open.textContent = 'Open'; open.href = it.url; open.target = '_blank'; open.rel = 'noopener';
+		actions.appendChild(open);
+		li.appendChild(meta); li.appendChild(actions); ul.appendChild(li);
+	}
+}
+
+// If PUBLIC_MANIFEST_ENDPOINT is set, fetch public assignments on load
+if (PUBLIC_MANIFEST_ENDPOINT) {
+	(async () => { const items = await fetchPublicAssignments(); renderPublicAssignments(items); })();
 }
 
 function toFileList(files){
