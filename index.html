@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Lokesh (Lucky) — Aspiring Cyber Security Engineer & Software Developer" />
+    <title>Lokesh Gaula — Cyber Security Engineer</title>
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- AOS (Scroll animations) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+
+    <!-- Main stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- HERO with Vanta background -->
+    <header id="hero" class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-foreground" aria-hidden="true"></div>
+        <div class="hero-content">
+            <p class="eyebrow">Hello, I'm</p>
+            <h1 class="name">Lokesh Gaula</h1>
+            <h2 class="role">CSE • Cyber Security</h2>
+            <div class="typed-wrap">
+                <span id="typed" class="typed"></span>
+            </div>
+            <p class="hero-desc">Aspiring Cyber Security Engineer & Software Developer — hunting vulnerabilities, building secure systems.</p>
+
+            <div class="cta">
+                <a href="#projects" class="btn primary">View Projects</a>
+                <a href="#assignments" class="btn ghost">Assignments</a>
+                <a href="#contact" class="btn ghost">Contact</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- ABOUT -->
+        <section id="about" class="section about" data-aos="fade-up">
+            <div class="container grid-2">
+                <div class="about-card glass" data-aos="fade-right">
+                    <h3>About Me</h3>
+                    <p>
+                        I'm Lokesh "Lucky" Gaula — a Computer Science Engineering student specialized in Cyber Security.
+                        I focus on secure-by-design systems, exploit analysis, and defensive engineering. I combine strong
+                        software fundamentals with a hacker mindset to harden real-world applications.
+                    </p>
+                    <ul class="about-highlights">
+                        <li>Secure coding & threat modeling</li>
+                        <li>Network & system security</li>
+                        <li>Bug bounties & CTFs (practical offensive experience)</li>
+                    </ul>
+                </div>
+
+                <div class="stats-card glass" data-aos="fade-left">
+                    <h4>Quick Facts</h4>
+                    <div class="stats-grid">
+                        <div class="stat">
+                            <div class="num">B.Tech</div>
+                            <div class="label">Degree</div>
+                        </div>
+                        <div class="stat">
+                            <div class="num">CSE</div>
+                            <div class="label">Field</div>
+                        </div>
+                        <div class="stat">
+                            <div class="num">Lucky</div>
+                            <div class="label">Nickname</div>
+                        </div>
+                        <div class="stat">
+                            <div class="num">2026+</div>
+                            <div class="label">Available</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SKILLS -->
+        <section id="skills" class="section skills dark" data-aos="fade-up">
+            <h3>Skills</h3>
+            <div class="skills-grid">
+                <div class="skill glass" data-aos="zoom-in" data-aos-delay="50">
+                    <h4>Programming</h4>
+                    <p>Python, C, JavaScript, Go</p>
+                </div>
+                <div class="skill glass" data-aos="zoom-in" data-aos-delay="100">
+                    <h4>Web</h4>
+                    <p>HTML5, CSS3, JS, Node, Express</p>
+                </div>
+                <div class="skill glass" data-aos="zoom-in" data-aos-delay="150">
+                    <h4>Security</h4>
+                    <p>Vulnerability Assessment, Pen-Testing, OWASP, WAFs</p>
+                </div>
+                <div class="skill glass" data-aos="zoom-in" data-aos-delay="200">
+                    <h4>Infra</h4>
+                    <p>Linux, Networking, Docker, CI/CD</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- PROJECTS -->
+        <section id="projects" class="section projects" data-aos="fade-up">
+            <h3>Selected Projects</h3>
+            <div class="projects-grid">
+                <article class="project-card glass" data-aos="flip-left" data-preview-type="image" data-preview-src="" data-preview-title="Secure Audit Toolkit">
+                    <div class="preview-thumb" aria-hidden="true">
+                        <div class="preview-placeholder">Preview</div>
+                    </div>
+                    <div class="card-head">
+                        <h4>Secure Audit Toolkit</h4>
+                        <span class="tag">C, Python</span>
+                    </div>
+                    <p class="card-desc">A CLI toolkit to scan and report common misconfigurations and insecure defaults for Linux services.</p>
+                    <div class="card-actions">
+                        <a href="#" class="link" data-action="open-preview">Preview</a>
+                        <a href="https://github.com/lokeshgaula" class="link" target="_blank" rel="noopener">Code</a>
+                    </div>
+                </article>
+
+                <article class="project-card glass" data-aos="flip-left" data-aos-delay="80" data-preview-type="image" data-preview-src="" data-preview-title="WebApp Hardener">
+                    <div class="preview-thumb" aria-hidden="true">
+                        <div class="preview-placeholder">Preview</div>
+                    </div>
+                    <div class="card-head">
+                        <h4>WebApp Hardener</h4>
+                        <span class="tag">Node, Express</span>
+                    </div>
+                    <p class="card-desc">Middleware suite to enforce CSP, secure headers, input sanitation and logging for Node apps.</p>
+                    <div class="card-actions">
+                        <a href="#" class="link" data-action="open-preview">Preview</a>
+                        <a href="#" class="link">Code</a>
+                    </div>
+                </article>
+
+                <article class="project-card glass" data-aos="flip-left" data-aos-delay="160" data-preview-type="image" data-preview-src="" data-preview-title="CTF Writeups">
+                    <div class="preview-thumb" aria-hidden="true">
+                        <div class="preview-placeholder">Preview</div>
+                    </div>
+                    <div class="card-head">
+                        <h4>CTF Writeups</h4>
+                        <span class="tag">Offense</span>
+                    </div>
+                    <p class="card-desc">Collection of solved CTF challenges with reproducible exploit notes and defensive learnings.</p>
+                    <div class="card-actions">
+                        <a href="#" class="link" data-action="open-preview">Preview</a>
+                        <a href="#" class="link">GitHub</a>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- ASSIGNMENTS: temporary upload area -->
+        <section id="assignments" class="section assignments" data-aos="fade-up">
+            <h3>Assignments</h3>
+            <div class="assignments-grid">
+                <div class="glass upload-panel" data-aos="fade-right">
+                    <h4>Upload Assignment</h4>
+                    <p class="muted">Upload files here for temporary storage (saved in your browser). Remove when not needed.</p>
+                    <div id="upload-area" class="upload-area">
+                        <input id="assignment-input" type="file" multiple hidden>
+                        <button class="btn ghost" id="choose-files">Choose files</button>
+                        <div class="drop-hint">or drag & drop files here</div>
+                    </div>
+                    <div class="upload-actions" style="margin-top:12px">
+                        <button class="btn primary" id="save-files">Save Selected</button>
+                        <button class="btn" id="clear-assignments">Clear All</button>
+                    </div>
+                </div>
+
+                <div class="glass assignments-list" data-aos="fade-left">
+                    <h4>Saved Assignments</h4>
+                    <ul id="assignments-list" class="file-list"></ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONTACT -->
+        <section id="contact" class="section contact dark" data-aos="fade-up">
+            <h3>Contact</h3>
+            <div class="contact-grid">
+                <div class="contact-card glass" data-aos="fade-right">
+                    <h4>Get in touch</h4>
+                        <p>Email: <a class="inline-link" href="mailto:lokeshgaula@gmail.com">lokeshgaula@gmail.com</a></p>
+                        <p>GitHub: <a class="inline-link" href="https://github.com/lokeshgaula" target="_blank" rel="noopener">github.com/lokeshgaula</a></p>
+                        <p>LinkedIn: <a class="inline-link" href="https://www.linkedin.com/in/lokesh-gaula" target="_blank" rel="noopener">www.linkedin.com/in/lokesh-gaula</a></p>
+                    <div class="socials">
+                        <a href="#" aria-label="github" class="social"><i class="fa-brands fa-github"></i></a>
+                        <a href="#" aria-label="linkedin" class="social"><i class="fa-brands fa-linkedin"></i></a>
+                        <a href="#" aria-label="mail" class="social"><i class="fa-solid fa-envelope"></i></a>
+                    </div>
+                </div>
+
+                <form class="contact-form glass" data-aos="fade-left" onsubmit="return submitContact(event)">
+                    <label>Name <input type="text" name="name" placeholder="Your name" required></label>
+                    <label>Email <input type="email" name="email" placeholder="you@domain.com" required></label>
+                    <label>Message <textarea name="message" rows="4" placeholder="Hi Lokesh —"></textarea></label>
+                    <div class="form-actions">
+                        <button type="submit" class="btn primary">Send</button>
+                        <button type="button" class="btn ghost" onclick="copyEmail()">Copy Email</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div>© 2026 Lokesh Gaula</div>
+            <div class="footer-links">
+                <a href="#privacy">Privacy</a>
+                <a href="#terms">Terms</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Project preview modal -->
+    <div id="preview-modal" class="preview-modal" aria-hidden="true">
+        <div class="preview-modal-inner glass">
+            <button id="preview-close" class="btn" aria-label="Close preview">Close</button>
+            <div id="preview-content" class="preview-content"></div>
+            <div id="preview-meta" class="preview-meta"></div>
+        </div>
+    </div>
+
+    <!-- Third-party libs: THREE + Vanta, Typed.js, AOS, GSAP -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.124.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12/lib/typed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.0/gsap.min.js"></script>
+
+    <!-- App script -->
+    <script src="script.js" defer></script>
+</body>
+</html>
