@@ -2,44 +2,82 @@
 // Initializes Vanta.js (matrix/particle background), Typed.js typing effect,
 // AOS scroll animations, and adds small UI helpers (contact/copy email).
 
+/* ============ CONFIG (constants & settings) ============ */
+const CONFIG = {
+	contact: { email: 'lokeshgaula@gmail.com' },
+	typed: {
+		strings: ['Aspiring Cyber Security Engineer', 'Software Developer', 'Bug Bounty Enthusiast', 'Secure Code Advocate'],
+		typeSpeed: 55,
+		backSpeed: 30,
+		backDelay: 1500
+	},
+	aos: { once: false, mirror: true, duration: 800, easing: 'ease-out-cubic' },
+	vanta: {
+		color: 0x58a6ff,
+		backgroundAlpha: 0.0,
+		points: 12.00,
+		maxDistance: 22.00,
+		spacing: 17.00,
+		scale: 1.0,
+		scaleMobile: 1.0,
+		minHeight: 200,
+		minWidth: 200,
+		mouseControls: true,
+		touchControls: true,
+		gyroControls: false
+	},
+	storage: { key: 'portfolio-assignments' }
+};
+
 let vantaEffect = null;
 
 function initVanta() {
-	try {
-		if (window.VANTA && window.VANTA.NET) {
-			vantaEffect = VANTA.NET({
-				el: '#hero',
-				mouseControls: true,
-				touchControls: true,
-				gyroControls: false,
-				minHeight: 200.00,
-				minWidth: 200.00,
-				scale: 1.0,
-				scaleMobile: 1.0,
-				color: 0x58a6ff,
-				backgroundAlpha: 0.0,
-				points: 12.00,
-				maxDistance: 22.00,
-				spacing: 17.00
-			});
-		}
-	} catch (e) {
-		console.warn('Vanta init failed', e);
+	const heroEl = document.querySelector('#hero');
+	if (!heroEl) return;
+
+	const startVanta = () => {
+		if (vantaEffect) return;
+		
+		const loadScript = (src) => new Promise((resolve, reject) => {
+			const s = document.createElement('script');
+			s.src = src; s.async = true; s.onload = resolve; s.onerror = reject;
+			document.head.appendChild(s);
+		});
+
+		const init = () => {
+			try {
+				if (window.VANTA?.NET) {
+					vantaEffect = VANTA.NET({ el: '#hero', ...CONFIG.vanta });
+				}
+			} catch (e) {
+				console.warn('Vanta init failed', e);
+			}
+		};
+
+		if (window.VANTA?.NET) return init();
+
+		loadScript('https://cdn.jsdelivr.net/npm/three@0.124.0/build/three.min.js')
+			.then(() => loadScript('https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js'))
+			.then(init)
+			.catch(err => console.warn('Failed to load Vanta', err));
+	};
+
+	// Lazy load on visibility
+	if ('IntersectionObserver' in window) {
+		const io = new IntersectionObserver((entries) => {
+			if (entries[0].isIntersecting) { startVanta(); io.disconnect(); }
+		}, { rootMargin: '300px' });
+		io.observe(heroEl);
+		setTimeout(() => { if (!vantaEffect) startVanta(); }, 2000);
+	} else {
+		setTimeout(startVanta, 1500);
 	}
 }
 
 function initTyped() {
 	if (window.Typed) {
 		new Typed('#typed', {
-			strings: [
-				'Aspiring Cyber Security Engineer',
-				'Software Developer',
-				'Bug Bounty Enthusiast',
-				'Secure Code Advocate'
-			],
-			typeSpeed: 55,
-			backSpeed: 30,
-			backDelay: 1500,
+			...CONFIG.typed,
 			loop: true,
 			showCursor: true,
 			cursorChar: '|'
@@ -49,14 +87,7 @@ function initTyped() {
 
 function initAOS() {
 	if (window.AOS) {
-		// Allow animations to replay each time elements enter the viewport
-		// and animate out when scrolling past (mirror) so they reset when you scroll back up.
-		AOS.init({
-			once: false,
-			mirror: true,
-			duration: 800,
-			easing: 'ease-out-cubic'
-		});
+		AOS.init(CONFIG.aos);
 	}
 }
 
@@ -86,42 +117,23 @@ function submitContact(e) {
 	e.preventDefault();
 	const form = e.target;
 	const name = form.name.value || 'No name';
-	const email = form.email.value || 'lokeshgaula@gmail.com';
+	const email = form.email.value || CONFIG.contact.email;
 	const message = form.message.value || '';
 
-	// Open default mail client with prefilled values as a simple, reliable action
 	const subject = encodeURIComponent('Portfolio contact from ' + name);
 	const body = encodeURIComponent('From: ' + email + '\n\n' + message);
-	const to = 'lokeshgaula@gmail.com';
-	const mailto = `mailto:${to}?subject=${subject}&body=${body}`;
+	const mailto = `mailto:${CONFIG.contact.email}?subject=${subject}&body=${body}`;
 
-	// Try different ways to trigger the mail client (some browsers/OS combinations behave differently)
-	try {
-		// 1) navigation
-		window.location.href = mailto;
-	} catch (err) {
-		// ignore
-	}
-
-	try {
-		// 2) programmatic anchor click
+	try { window.location.href = mailto; } catch (err) { }
+	try { 
 		const a = document.createElement('a');
-		a.href = mailto;
-		a.style.display = 'none';
-		document.body.appendChild(a);
-		a.click();
-		a.remove();
-	} catch (err) { /* ignore */ }
+		a.href = mailto; a.style.display = 'none'; document.body.appendChild(a); a.click(); a.remove();
+	} catch (err) { }
+	try { window.open(mailto, '_self'); } catch (err) { }
 
-	try {
-		// 3) window.open (some setups open default app chooser)
-		window.open(mailto, '_self');
-	} catch (err) { /* ignore */ }
-
-	// After attempting, show a small fallback with alternatives in case the OS has no default mail handler
 	setTimeout(() => {
 		showToast('If no mail app opened, you can copy the message or open Gmail.');
-		showFallbackPanel(to, subject, body, mailto);
+		showFallbackPanel(CONFIG.contact.email, subject, body, mailto);
 	}, 900);
 
 	return false;
@@ -172,14 +184,12 @@ function showFallbackPanel(to, subject, body, mailto) {
 }
 
 function copyEmail() {
-	const email = 'lokeshgaula@gmail.com';
 	if (navigator.clipboard && window.isSecureContext) {
-		navigator.clipboard.writeText(email).then(() => showToast('Email copied to clipboard'));
+		navigator.clipboard.writeText(CONFIG.contact.email).then(() => showToast('Email copied'));
 	} else {
-		// fallback
 		const el = document.createElement('textarea');
-		el.value = email; document.body.appendChild(el); el.select();
-		try { document.execCommand('copy'); showToast('Email copied to clipboard'); } catch (err) { showToast('Copy failed'); }
+		el.value = CONFIG.contact.email; document.body.appendChild(el); el.select();
+		try { document.execCommand('copy'); showToast('Email copied'); } catch (err) { showToast('Copy failed'); }
 		el.remove();
 	}
 }
@@ -209,6 +219,12 @@ function initSmoothScroll() {
 
 // Initialize everything once DOM is ready (script is deferred)
 document.addEventListener('DOMContentLoaded', () => {
+	// Attach contact form and copy email handlers
+	const contactForm = document.getElementById('contact-form');
+	const copyEmailBtn = document.getElementById('copy-email-btn');
+	if (contactForm) contactForm.addEventListener('submit', submitContact);
+	if (copyEmailBtn) copyEmailBtn.addEventListener('click', copyEmail);
+
 	initVanta();
 	initTyped();
 	initAOS();
@@ -217,16 +233,14 @@ document.addEventListener('DOMContentLoaded', () => {
 	initAssignments();
 	initProjectPreviews();
 	initKineticCursor();
+	initHeroButtonEffects();
+	initSkillBarAnimations();
 });
 
 // cleanup Vanta on unload to prevent leaks
 window.addEventListener('beforeunload', () => {
 	if (vantaEffect && typeof vantaEffect.destroy === 'function') vantaEffect.destroy();
 });
-
-// expose some helpers to inline HTML
-window.submitContact = submitContact;
-window.copyEmail = copyEmail;
 
 /* Project preview handlers (open modal showing preview content) */
 function initProjectPreviews(){
@@ -293,63 +307,128 @@ function initKineticCursor(){
 	}
 }
 
-/* -------------------- Assignments (IndexedDB-backed temporary storage) -------------------- */
-const ASSIGN_DB = 'portfolio-db';
-const ASSIGN_STORE = 'assignments';
+/* Resume generation using jsPDF (client-side) */
+/* Resume feature removed — initResumeButton() deleted */
 
-function openDB() {
-	return new Promise((resolve, reject) => {
-		const req = indexedDB.open(ASSIGN_DB, 1);
-		req.onupgradeneeded = () => {
-			const db = req.result;
-			if (!db.objectStoreNames.contains(ASSIGN_STORE)) {
-				db.createObjectStore(ASSIGN_STORE, { keyPath: 'id', autoIncrement: true });
+/* Skill bar animation: animate span width when visible */
+function initSkillBarAnimations(){
+	const bars = document.querySelectorAll('.skill-bar');
+	if (!bars.length) return;
+
+	// Add visible percentage labels to each skill card (keeps UI consistent)
+	document.querySelectorAll('.skill').forEach(s => {
+		const level = s.querySelector('.skill-bar')?.dataset.level;
+		if (level && !s.querySelector('.level')){
+			const lbl = document.createElement('div'); lbl.className = 'level'; lbl.textContent = level + '%';
+			s.appendChild(lbl);
+		}
+	});
+	const io = new IntersectionObserver(entries => {
+		entries.forEach(entry => {
+			if (entry.isIntersecting) {
+				const el = entry.target;
+				const level = parseInt(el.dataset.level || '0',10);
+				const span = el.querySelector('span');
+				if (span) span.style.width = level + '%';
+				// unobserve if you want single-run, else leave to animate each time
+				io.unobserve(el);
 			}
-		};
-		req.onsuccess = () => resolve(req.result);
-		req.onerror = () => reject(req.error);
-	});
-}
-
-async function saveFiles(files) {
-	// Store File objects (Blobs) directly to IndexedDB — more efficient than data URLs
-	const db = await openDB();
-	const tx = db.transaction(ASSIGN_STORE, 'readwrite');
-	const store = tx.objectStore(ASSIGN_STORE);
-	for (const f of files) {
-		await new Promise((res, rej) => {
-			const item = { name: f.name, type: f.type, size: f.size, blob: f, ts: Date.now() };
-			const r = store.add(item);
-			r.onsuccess = () => res();
-			r.onerror = () => rej(r.error);
 		});
-	}
-	await new Promise(r => tx.oncomplete = r);
+	}, { threshold: 0.25 });
+	bars.forEach(b => io.observe(b));
 }
 
-async function loadAssignments() {
-	const db = await openDB();
-	const tx = db.transaction(ASSIGN_STORE, 'readonly');
-	const store = tx.objectStore(ASSIGN_STORE);
-	return new Promise((resolve) => {
-		const req = store.getAll();
-		req.onsuccess = () => resolve(req.result || []);
-		req.onerror = () => resolve([]);
+/* Hero button dynamic effects: add sheen element and particle burst on hover */
+function initHeroButtonEffects(){
+	const buttons = document.querySelectorAll('.hero .btn');
+	if (!buttons || !window.gsap) return;
+
+	buttons.forEach(btn => {
+		// Add sheen element if missing
+		if (!btn.querySelector('.sheen')){
+			const s = document.createElement('span'); s.className = 'sheen'; btn.appendChild(s);
+		}
+
+		// Hover particle burst
+		btn.addEventListener('mouseenter', (e) => {
+			// small scale pop
+			gsap.to(btn, { scale: 1.03, duration: 0.18, ease: 'power2.out' });
+			// create multiple particles
+			for (let i=0;i<8;i++){
+				const p = document.createElement('div'); p.className='particle';
+				btn.appendChild(p);
+				const rect = btn.getBoundingClientRect();
+				const x = e.clientX - rect.left; const y = e.clientY - rect.top;
+				p.style.left = (x - 4) + 'px'; p.style.top = (y - 4) + 'px';
+				const angle = Math.random()*Math.PI*2; const dist = 40 + Math.random()*40;
+				const dx = Math.cos(angle)*dist; const dy = Math.sin(angle)*dist;
+				gsap.to(p, { x: dx, y: dy, scale: 0.3 + Math.random()*0.8, opacity:0, duration: 0.9+Math.random()*0.6, ease:'power3.out', onComplete: ()=>p.remove() });
+			}
+		});
+
+		btn.addEventListener('mouseleave', () => {
+			gsap.to(btn, { scale: 1, duration: 0.32, ease: 'power3.out' });
+		});
 	});
 }
 
-async function deleteAssignment(id) {
-	const db = await openDB();
-	const tx = db.transaction(ASSIGN_STORE, 'readwrite');
-	tx.objectStore(ASSIGN_STORE).delete(id);
-	return new Promise(r => tx.oncomplete = r);
+/* ============ Assignments (localStorage-backed storage) ============ */
+/* Using localStorage instead of IndexedDB - simpler, sufficient for file metadata */
+
+function getAssignments() {
+	try {
+		const data = localStorage.getItem(CONFIG.storage.key);
+		return data ? JSON.parse(data) : [];
+	} catch (e) {
+		console.warn('Failed to load assignments', e);
+		return [];
+	}
 }
 
-async function clearAssignments() {
-	const db = await openDB();
-	const tx = db.transaction(ASSIGN_STORE, 'readwrite');
-	tx.objectStore(ASSIGN_STORE).clear();
-	return new Promise(r => tx.oncomplete = r);
+function saveAssignments(items) {
+	try {
+		localStorage.setItem(CONFIG.storage.key, JSON.stringify(items));
+		return true;
+	} catch (e) {
+		console.warn('Failed to save assignments', e);
+		return false;
+	}
+}
+
+function addAssignment(file) {
+	const items = getAssignments();
+	const reader = new FileReader();
+	reader.onload = (e) => {
+		items.push({
+			id: Date.now(),
+			name: file.name,
+			type: file.type,
+			size: file.size,
+			data: e.target.result,
+			ts: Date.now()
+		});
+		if (saveAssignments(items)) {
+			renderAssignments(items);
+			showToast('File added');
+		}
+	};
+	reader.readAsDataURL(file);
+}
+
+function deleteAssignment(id) {
+	const items = getAssignments();
+	const filtered = items.filter(it => it.id !== id);
+	if (saveAssignments(filtered)) {
+		renderAssignments(filtered);
+		showToast('Deleted');
+	}
+}
+
+function clearAllAssignments() {
+	if (saveAssignments([])) {
+		renderAssignments([]);
+		showToast('Cleared');
+	}
 }
 
 function renderAssignments(items) {
@@ -367,31 +446,30 @@ function renderAssignments(items) {
 		const actions = document.createElement('div'); actions.className = 'actions';
 		const dl = document.createElement('button'); dl.className = 'btn ghost'; dl.textContent = 'Download';
 		dl.addEventListener('click', () => {
-			// Support both previous data-URL strings and Blob objects stored now.
-			if (typeof it.blob === 'string' && it.blob.startsWith('data:')) {
-				const a = document.createElement('a'); a.href = it.blob; a.download = it.name; document.body.appendChild(a); a.click(); a.remove();
-				return;
-			}
-			// blob expected to be a File/Blob
 			try {
-				const url = URL.createObjectURL(it.blob);
-				const a = document.createElement('a'); a.href = url; a.download = it.name; document.body.appendChild(a); a.click(); a.remove();
-				setTimeout(() => URL.revokeObjectURL(url), 3000);
+				const a = document.createElement('a');
+				a.href = it.data;
+				a.download = it.name;
+				document.body.appendChild(a);
+				a.click();
+				a.remove();
 			} catch (err) {
 				showToast('Download failed');
 			}
 		});
 		const del = document.createElement('button'); del.className = 'btn'; del.textContent = 'Delete';
-		del.addEventListener('click', async () => { await deleteAssignment(it.id); showToast('Deleted'); await refreshAssignments(); });
+		del.addEventListener('click', () => deleteAssignment(it.id));
 		actions.appendChild(dl); actions.appendChild(del);
 		li.appendChild(meta); li.appendChild(actions); ul.appendChild(li);
 	}
 }
 
 function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function formatBytes(bytes){ if (bytes<1024) return bytes+' B'; if(bytes<1048576) return (bytes/1024).toFixed(1)+' KB'; return (bytes/1048576).toFixed(2)+' MB'; }
-
-async function refreshAssignments(){ const items = await loadAssignments(); renderAssignments(items); }
+function formatBytes(bytes){ 
+	if (bytes < 1024) return bytes + ' B';
+	if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+	return (bytes / 1048576).toFixed(2) + ' MB';
+}
 
 function initAssignments(){
 	const input = document.getElementById('assignment-input');
@@ -403,7 +481,6 @@ function initAssignments(){
 	if (!input || !choose || !uploadArea) return;
 
 	choose.addEventListener('click', () => input.click());
-
 	uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); });
 	uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
 	uploadArea.addEventListener('drop', (e) => {
@@ -416,15 +493,18 @@ function initAssignments(){
 		showToast(input.files.length + ' file(s) selected');
 	});
 
-	saveBtn.addEventListener('click', async () => {
+	saveBtn?.addEventListener('click', () => {
 		const files = Array.from(input.files || []);
 		if (!files.length) { showToast('No files selected'); return; }
-		try { await saveFiles(files); showToast('Saved'); input.value = ''; await refreshAssignments(); } catch (err) { console.error(err); showToast('Save failed'); }
+		files.forEach(f => addAssignment(f));
+		input.value = '';
 	});
 
-	clearBtn.addEventListener('click', async () => { if (confirm('Clear all saved assignments?')) { await clearAssignments(); await refreshAssignments(); showToast('Cleared'); } });
+	clearBtn?.addEventListener('click', () => {
+		if (confirm('Clear all saved assignments?')) clearAllAssignments();
+	});
 
-	refreshAssignments();
+	renderAssignments(getAssignments());
 }
 
 function toFileList(files){
