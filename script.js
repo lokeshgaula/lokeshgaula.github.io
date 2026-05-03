@@ -235,6 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	initKineticCursor();
 	initHeroButtonEffects();
 	initSkillBarAnimations();
+	initViewToggle();
 });
 
 // cleanup Vanta on unload to prevent leaks
@@ -372,6 +373,59 @@ function initHeroButtonEffects(){
 	});
 }
 
+/* View actions for video and presentation (embedded vs new tab) */
+function initViewToggle(){
+	// Handle embedded view buttons
+	document.querySelectorAll('[data-action="watch-embedded"], [data-action="view-embedded"]').forEach(btn => {
+		btn.addEventListener('click', () => {
+			const target = btn.dataset.target;
+			const section = document.getElementById(target);
+			if (!section) return;
+
+			// Get the embedded view and actions container
+			const embeddedView = section.querySelector('.embedded-view');
+			const actionsDiv = section.querySelector('.view-actions');
+			const prompt = section.querySelector('.container-prompt');
+
+			// Hide actions and prompt, show embedded view
+			if (actionsDiv) actionsDiv.classList.add('hidden');
+			if (prompt) prompt.classList.add('hidden');
+			if (embeddedView) embeddedView.classList.remove('hidden');
+		});
+	});
+
+	// Handle new tab view buttons
+	document.querySelectorAll('[data-action="watch-newtab"], [data-action="view-newtab"]').forEach(btn => {
+		btn.addEventListener('click', () => {
+			const videoUrl = 'https://drive.google.com/file/d/1E8ZXCY-qeCePOB9ibjWykqNmSVNkGCo1/view?usp=drivesdk';
+			const presentationUrl = 'https://docs.google.com/presentation/d/1P_JjrDrlDfJfoyyHZSXI4VeVfYrtIoFH/edit?usp=drivesdk';
+			
+			const target = btn.dataset.target;
+			const url = target === 'video-intro' ? videoUrl : presentationUrl;
+			
+			window.open(url, '_blank');
+		});
+	});
+
+	// Handle back button clicks
+	document.querySelectorAll('.btn-back').forEach(btn => {
+		btn.addEventListener('click', () => {
+			const target = btn.dataset.target;
+			const section = document.getElementById(target);
+			if (!section) return;
+
+			// Get the embedded view and actions container
+			const embeddedView = section.querySelector('.embedded-view');
+			const actionsDiv = section.querySelector('.view-actions');
+			const prompt = section.querySelector('.container-prompt');
+
+			// Show actions and prompt, hide embedded view
+			if (actionsDiv) actionsDiv.classList.remove('hidden');
+			if (prompt) prompt.classList.remove('hidden');
+			if (embeddedView) embeddedView.classList.add('hidden');
+		});
+	});
+}
 /* ============ Assignments (localStorage-backed storage) ============ */
 /* Using localStorage instead of IndexedDB - simpler, sufficient for file metadata */
 
